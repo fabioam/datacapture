@@ -33,14 +33,16 @@ class TestDataCaptureMethods(unittest.TestCase):
         cls.capture.build_stats()
 
     def test_less(self):
-        [self.assertEqual(self.capture.less(i[0]), i[1]) for i in LESS_PROVIDED_VS_EXPECTED_VALUES]
+        for i in LESS_PROVIDED_VS_EXPECTED_VALUES:
+            self.assertEqual(self.capture.less(i[0]), i[1])
 
     def test_between(self):
         for i in BETWEEN_VS_EXPECTED_VALUES:
             self.assertEqual(self.capture.between(i[0][0], i[0][1]), i[1])
 
     def test_greater(self):
-        [self.assertEqual(self.capture.greater(i[0]), i[1]) for i in GREATER_PROVIDED_VS_EXPECTED_VALUES]
+        for i in GREATER_PROVIDED_VS_EXPECTED_VALUES:
+            self.assertEqual(self.capture.greater(i[0]), i[1])
 
     def test_invalid_keys(self):
         for i in INVALID_KEY_VALUES:
