@@ -9,7 +9,7 @@ if __name__ == "__main__":
     times = []
 
     print(f"array size | execution time (seconds) | execution time for each element (seconds)")
-    for _ in range(40):
+    for _ in range(50):
         setup_code = f"from random import randint;from main import DataCapture; " \
                      f"capture = DataCapture(); " \
                      f"capture.input_data = []; " \

@@ -15,57 +15,26 @@ class DataCapture:
     """
 
     input_data = []
-    offset_mapping = {}
+    offset_mapping = []
+    ordered_list = []
+    counts = []
 
     def build_stats(self):
-        """
-        Sort array using Radix Sort(*), building an offset mapping to find elements using n(1)
-        * Radix sort logic reused from:  https://www.programiz.com/dsa/radix-sort
-        """
+        # create list from max number
+        self.counts = [0] * (max(self.input_data) + 1)
+        self.offset_mapping = [0] * (max(self.input_data) + 1)
 
-        # Get maximum element
-        max_element = max(self.input_data)
+        # count total for each number
+        for value in self.input_data:
+            self.counts[value] += 1
 
-        # Apply counting sort to sort elements based on place value.
-        place = 1
-        while max_element // place > 0:
-            size = len(self.input_data)
-            output = [0] * size
-            count = [0] * 10
+        # recreate ordered array
+        for index in range(len(self.counts)):
+            if self.counts[index] > 0:
+                for n in range(self.counts[index]):  # only if greater than 1 (more than one occurrence)
+                    self.ordered_list.append(index)
+                self.offset_mapping[index] = len(self.ordered_list)  # register last occurrence in list from this number
 
-            # Calculate count of elements
-            for i in range(0, size):
-                index = self.input_data[i] // place
-                count[index % 10] += 1
-
-            # Calculate cumulative count
-            for i in range(1, 10):
-                count[i] += count[i - 1]
-
-            # Place the elements in sorted order
-            i = size - 1
-            while i >= 0:
-                index = self.input_data[i] // place
-                output[count[index % 10] - 1] = self.input_data[i]
-                count[index % 10] -= 1
-                i -= 1
-
-            for i in range(0, size):
-                self.input_data[i] = output[i]
-                if not self.offset_mapping.get(output[i]):
-                    self.offset_mapping[output[i]] = {
-                        'count': 1,
-                        'offset': i
-                    }
-                else:
-                    self.offset_mapping[output[i]] = {
-                        'count': self.offset_mapping[output[i]].get('count') + 1,
-                        'offset': i
-                    }
-
-            place *= 10
-
-        return self.input_data
 
     def add(self, number):
         """Append a new element to input_data model attribute in constant time O(1)
@@ -100,11 +69,10 @@ class DataCapture:
             If index/number does not exist.
         """
 
-        if not self.offset_mapping.get(index):
-
+        if index >= len(self.offset_mapping):
             raise ValueError('Unable to find index %d' % index)
 
-        return self.offset_mapping.get(index)
+        return self.offset_mapping[index]
 
     def __get_start_position(self, number):
         """Private helper method to return the position of the first occurrence from a given element.
@@ -122,7 +90,7 @@ class DataCapture:
 
         offset = self.__get_offset_by_index(number)
 
-        return (offset.get('offset')+1) - offset.get('count')
+        return offset-self.counts[number]
 
 
     def __get_end_position(self, number):
@@ -139,10 +107,7 @@ class DataCapture:
             If index/number does not exist.
         """
 
-        # offset = self.offset_mapping[number]
-        offset = self.__get_offset_by_index(number)
-
-        return offset.get('offset') + 1
+        return self.__get_offset_by_index(number)
 
     def less(self, number):
         """Return quantity of elements with value smaller than 'number' in constant time O(1)
@@ -153,7 +118,7 @@ class DataCapture:
             Element index
         """
 
-        return len(self.input_data[:self.__get_start_position(number)])
+        return len(self.ordered_list[:self.__get_start_position(number)])
 
 
     def between(self, start_number, end_number):
@@ -171,7 +136,7 @@ class DataCapture:
         start_position = self.__get_start_position(start_number)
         end_position = self.__get_end_position(end_number)
 
-        return len(self.input_data[start_position:end_position])
+        return len(self.ordered_list[start_position:end_position])
 
     def greater(self, number):
         """Return quantity of elements with value greater than 'number' in constant time O(1)
@@ -182,7 +147,7 @@ class DataCapture:
             Element index
         """
 
-        return len(self.input_data[self.__get_end_position(number):])
+        return len(self.ordered_list[self.__get_end_position(number):])
 
 
 
